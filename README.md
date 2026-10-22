@@ -526,8 +526,7 @@ python device_simulator.py CAM-002 --update --tamper
 The second one flips a bit of the download, as a man-in-the-middle would. The device refuses
 it, and the refusal appears in the Firmware page's Update Log.
 
-## Limitations (good to mention in the viva)
-
+## Limitations 
 * Flask's built-in development server is used; a real deployment needs HTTPS and a
   production server, otherwise the challenge/response can be observed (it cannot be
   reused, but it is not hidden).
