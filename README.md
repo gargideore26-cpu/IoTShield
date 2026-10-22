@@ -38,8 +38,9 @@ IoTShield answers each of these with a standard cryptographic technique and lets
 - **Key Custody:** split the master key into shares (default 3-of-5), seal the vault so the key file is deleted from disk, unseal with enough shares
 - **Master-key rotation:** a crash-safe, all-or-nothing re-encryption that makes leaked shares useless
 - Admin protection: password plus emailed 6-digit code, CSRF tokens, rate limiting, 5-minute inactivity sign-out
-- Live dashboard, device list, firmware page with update log, and a full security log
-- Light and dark theme
+- **Home** landing page after login, and a live **Dashboard** with device counters, fleet status, key-vault and firmware status, recent activity and an hourly attempts chart
+- Device list, firmware page with update log, and a full security log
+- Light and dark theme, with icon navigation (hover an icon to see its name)
 - Device simulator for demos, including attack modes
 - 88 automated tests
 
@@ -104,7 +105,8 @@ Device downloads image, then:
 
 | Page | Purpose |
 |---|---|
-| Dashboard | Live fleet statistics and device status |
+| Home | Landing page after login, with shortcuts to authentication, firmware and key custody |
+| Dashboard | Devices registered, authenticated and failed, success rate, fleet status, security status (key vault, firmware), recent activity and an hourly attempts chart |
 | Devices | Add, view and manage devices |
 | Authenticate | Run the 4-step challenge–response step by step |
 | Firmware | Publish signed firmware, view the update log and fleet versions |
@@ -116,13 +118,18 @@ Device downloads image, then:
 
 ## Screenshots
 
+### Home
+The landing page after login, with shortcuts to the main areas.
+
+![Home](docs/images/home.png)
+
 ### Dashboard
-Live fleet statistics and per-device status (online, authenticating, offline).
+Devices registered, authenticated and failed, the success rate, fleet status, security status (key vault and firmware), recent activity, and an hourly chart of successful and failed attempts.
 
 ![Dashboard](docs/images/dashboard.png)
 
 ### Devices
-Register devices. Each gets its own 256-bit secret key, stored encrypted and never shown in the browser.
+Register and manage devices. Each gets its own 256-bit secret key, stored encrypted and never shown in the browser.
 
 ![Devices](docs/images/devices.png)
 
