@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ device_id }}{% endblock %}
+{% block body_attrs %}data-device-id="{{ device_id }}"{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 id="detailTitle" class="mono">{{ device_id }}</h1>
+    <p><a href="{{ url_for('devices_page') }}">← Back to devices</a></p>
+  </div>
+  <div class="row">
+    <a class="btn btn-primary" href="{{ url_for('authenticate_page') }}?device={{ device_id }}"><svg class="icon"><use href="#i-key"/></svg>Authenticate</a>
+    <button class="btn btn-danger" id="btnToggle"><svg class="icon"><use href="#i-power"/></svg><span>Disable</span></button>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-cpu"/></svg>Device Information</h2></div>
+    <div class="kv" id="infoBox"><div class="k">Loading…</div><div class="v"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-lock"/></svg>Security Information</h2></div>
+    <div class="kv">
+      <div class="k">Authentication Method</div><div class="v">Challenge–Response + HMAC</div>
+      <div class="k">HMAC Algorithm</div><div class="v">SHA-256</div>
+      <div class="k">Secret Key</div><div class="v"><span class="masked">••••••••••••••••••••••••</span><span class="sub">256-bit · encrypted at rest · never displayed</span></div>
+      <div class="k">Authentication Status</div><div class="v"><span class="badge badge-secure" id="secureBadge">SECURE</span></div>
+      <div class="k">Attempts (ok / failed)</div><div class="v" id="attemptSummary">–</div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-list"/></svg>Recent Authentication Attempts</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time</th><th>Challenge</th><th>Result</th><th>Details</th></tr></thead>
+      <tbody id="recentBody"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

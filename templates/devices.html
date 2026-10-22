@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Devices{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Devices</h1>
+    <p>Register devices. Each gets its own 256-bit secret key, encrypted at rest.</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-plus"/></svg>Add Device</h2></div>
+  <form id="addDeviceForm" class="form-grid" autocomplete="off" novalidate>
+    <div>
+      <label for="deviceId">Device ID</label>
+      <input id="deviceId" name="device_id" placeholder="e.g. LOCK-005" maxlength="32" required>
+    </div>
+    <div>
+      <label for="deviceName">Device Name</label>
+      <input id="deviceName" name="device_name" placeholder="e.g. Front Door Lock" maxlength="40" required>
+    </div>
+    <div>
+      <label for="deviceType">Device Type</label>
+      <input id="deviceType" name="device_type" placeholder="e.g. Smart Lock" maxlength="40" required>
+    </div>
+    <button class="btn btn-primary" type="submit" id="addDeviceBtn"><svg class="icon"><use href="#i-plus"/></svg>Register Device</button>
+  </form>
+  <p class="hint">A 256-bit secret key is generated with a cryptographically secure random generator and stored encrypted. It is never shown in the browser.</p>
+</div>
+
+<div class="card mt">
+  <div class="card-head">
+    <h2><svg class="icon"><use href="#i-cpu"/></svg>Registered Devices</h2>
+    <span class="card-sub" id="deviceCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Device ID</th><th>Name</th><th>Type</th><th>Status</th><th>Firmware</th><th>Auth Attempts</th><th>Last Seen</th><th>Actions</th></tr></thead>
+      <tbody id="devicesBody"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

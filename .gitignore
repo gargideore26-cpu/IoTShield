@@ -1,0 +1,16 @@
+# Secrets and generated data: never commit or share these
+.env
+.env.*
+!.env.example
+instance/
+database/*.db
+database/*.db-*
+
+# Python, macOS and build output
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+*.zip
+.claude/

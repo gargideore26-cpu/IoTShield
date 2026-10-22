@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IoTShield</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div class="vignette"></div>
+
+  <main class="splash" id="splash">
+    <!-- the keyhole: draws itself, locks, then we fly through it -->
+    <div class="door" id="door">
+      <div class="halo"></div>
+      <div class="pulse"></div>
+      <svg class="keyhole" viewBox="30 45 435 767" role="img" aria-label="IoTShield keyhole logo">
+        <defs>
+          <!-- cuts the slot at the top of the ring and opens the neck between the legs -->
+          <clipPath id="kh-clip"><path clip-rule="evenodd" d="M0 0H570V840H0Z M224 0H272V150H224Z M224.8 330L271.2 330L296.6 420L199.4 420Z"/></clipPath>
+        </defs>
+        <path class="kh-stroke kh-ring" pathLength="1" clip-path="url(#kh-clip)" d="M248 91A141 141 0 1 1 248 373A141 141 0 1 1 248 91"/>
+        <path class="kh-stroke kh-leg kh-l" pathLength="1" d="M184.6 360 92 687 299 628"/>
+        <path class="kh-stroke kh-leg kh-r" pathLength="1" d="M311.4 360 411 714 241 766"/>
+        <rect class="kh-latch" x="222" y="62" width="52" height="62"/>   <!-- overlaps the ring a hair so no seam shows -->
+      </svg>
+    </div>
+
+    <!-- under the keyhole: a live handshake first, then the name -->
+    <div class="readout">
+      <div class="term" id="term" aria-hidden="true">
+        <div class="row" data-row="challenge"><span class="k">challenge</span><span class="v"></span></div>
+        <div class="row" data-row="hmac"><span class="k">hmac-sha256</span><span class="v"></span></div>
+        <div class="row" data-row="verdict"><span class="k">verdict</span><span class="v ok"></span></div>
+      </div>
+      <div class="brand-block">
+        <h1 class="logo">IoT<span>Shield</span></h1>
+        <p class="tagline">Secure IoT authentication</p>
+        <p class="credit">Made by Gargi Deore and Diya Jairamani</p>
+      </div>
+    </div>
+  </main>
+
+  <p class="skip" id="skip">Click anywhere to skip</p>
+  <script src="{{ url_for('static', filename='js/splash.js') }}"></script>
+</body>
+</html>

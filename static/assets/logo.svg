@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 45 435 767" role="img" aria-label="IoTShield logo">
+  <defs>
+    <!-- cuts the slot at the top of the ring and opens the neck between the legs -->
+    <clipPath id="kh-clip"><path clip-rule="evenodd" d="M0 0H570V840H0Z M224 0H272V150H224Z M224.8 330L271.2 330L296.6 420L199.4 420Z"/></clipPath>
+  </defs>
+  <g fill="none" stroke="#f3c63f" stroke-width="62" stroke-linejoin="miter" stroke-miterlimit="4">
+    <circle cx="248" cy="232" r="141" clip-path="url(#kh-clip)"/>
+    <path d="M184.6 360 92 687 299 628"/>
+    <path d="M311.4 360 411 714 241 766"/>
+  </g>
+</svg>

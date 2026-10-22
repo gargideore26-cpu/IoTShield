@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Authenticate{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Authenticate a device</h1>
+    <p>HMAC-SHA256 challenge–response. The device's secret key never crosses the network.</p>
+  </div>
+</div>
+
+<div class="auth-layout">
+  <div class="card">
+    <div class="stack" style="gap:0">
+
+      <div class="step active" id="step1">
+        <div class="step-num">1</div>
+        <h3>Select Device</h3>
+        <select id="deviceSelect"><option value="">Loading devices…</option></select>
+      </div>
+
+      <div class="step locked" id="step2">
+        <div class="step-num">2</div>
+        <h3>Server generates a random challenge</h3>
+        <button class="btn btn-purple" id="btnChallenge" disabled><svg class="icon"><use href="#i-zap"/></svg>GENERATE CHALLENGE</button>
+        <div class="codebox-label"><span>Challenge:</span><span class="ttl" id="ttl"></span></div>
+        <code class="codebox placeholder" id="challengeBox">— not generated yet —</code>
+      </div>
+
+      <div class="step locked" id="step3">
+        <div class="step-num">3</div>
+        <h3>Device computes HMAC-SHA256(secret key, challenge)</h3>
+        <button class="btn btn-purple" id="btnHmac" disabled><svg class="icon"><use href="#i-hash"/></svg>GENERATE HMAC</button>
+        <div class="codebox-label"><span>HMAC:</span></div>
+        <input class="codebox" id="hmacInput" placeholder="— not generated yet —" spellcheck="false" autocomplete="off" readonly>
+
+        <div class="attack">
+          <h4><svg class="icon"><use href="#i-swords"/></svg>Attack simulations</h4>
+          <div class="row">
+            <button class="btn btn-sm btn-danger" id="btnForge" disabled>Forge HMAC (no key)</button>
+            <button class="btn btn-sm btn-danger" id="btnReplay" disabled>Replay old response</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step locked" id="step4">
+        <div class="step-num">4</div>
+        <h3>Server verifies the HMAC</h3>
+        <button class="btn btn-primary" id="btnAuth" disabled><svg class="icon"><use href="#i-shield-check"/></svg>AUTHENTICATE DEVICE</button>
+        <div class="progress" id="progress"><div></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2><svg class="icon"><use href="#i-terminal"/></svg>Protocol Trace</h2>
+      <button class="btn btn-sm" id="btnClearTrace">Clear</button>
+    </div>
+    <div class="trace" id="trace"><div class="line muted">Waiting for a device to start authentication…</div></div>
+    <p class="hint">This is the real message exchange between device and server. Notice that the secret key never appears.</p>
+  </div>
+</div>
+{% endblock %}

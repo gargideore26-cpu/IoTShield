@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}IoTShield{% endblock %} · IoTShield</title>
+  <script>
+    /* Reloading the page (F5 / Cmd+R / reload button) signs the admin out and goes back to the opening screen. */
+    try {
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (nav && nav.type === 'reload') {
+        document.documentElement.style.visibility = 'hidden';
+        window.location.replace("{{ url_for('logout', reason='reload') }}");
+      }
+    } catch (e) { /* ignore */ }
+  </script>
+  <script>
+    /* Apply the saved light/dark preference before the page paints, so there's no flash
+       of the wrong theme. Defaults to dark (this app's original look) when nothing is saved. */
+    try {
+      if (localStorage.getItem('iotshield-theme') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch (e) { /* ignore (e.g. storage blocked) */ }
+  </script>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-page="{{ page }}" {% block body_attrs %}{% endblock %}>
+  {% include "_icons.html" %}
+  
+
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="{{ url_for('dashboard') }}">
+        <img class="brand-logo" src="{{ url_for('static', filename='assets/logo.svg') }}" alt="">
+        <span>IoT<em>Shield</em></span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <svg class="icon"><use href="#i-menu"/></svg>
+      </button>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if page == 'dashboard' }}"><svg class="icon"><use href="#i-grid"/></svg>Dashboard</a>
+        <a href="{{ url_for('devices_page') }}" class="{{ 'active' if page == 'devices' }}"><svg class="icon"><use href="#i-cpu"/></svg>Devices</a>
+        <a href="{{ url_for('authenticate_page') }}" class="{{ 'active' if page == 'authenticate' }}"><svg class="icon"><use href="#i-key"/></svg>Authenticate</a>
+        <a href="{{ url_for('firmware_page') }}" class="{{ 'active' if page == 'firmware' }}"><svg class="icon"><use href="#i-package"/></svg>Firmware</a>
+        <a href="{{ url_for('custody_page') }}" class="{{ 'active' if page == 'custody' }}"><svg class="icon"><use href="#i-lock"/></svg>Key Custody</a>
+        <a href="{{ url_for('logs_page') }}" class="{{ 'active' if page == 'logs' }}"><svg class="icon"><use href="#i-list"/></svg>Security Logs</a>
+        <a href="{{ url_for('about_page') }}" class="{{ 'active' if page == 'about' }}"><svg class="icon"><use href="#i-info"/></svg>About</a>
+      </nav>
+
+      <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Switch to light mode">
+        <svg class="icon i-sun-icon"><use href="#i-sun"/></svg>
+        <svg class="icon i-moon-icon"><use href="#i-moon"/></svg>
+      </button>
+      <div class="profile" id="profile">
+        <button class="profile-btn" id="profileBtn" aria-label="Profile and settings">
+          <svg class="icon"><use href="#i-user"/></svg>
+        </button>
+        <div class="profile-menu" id="profileMenu">
+          <div class="profile-head">
+            <strong>{{ session.get('admin', 'admin') }}</strong>
+            <span>Administrator</span>
+          </div>
+          <a href="{{ url_for('logs_page') }}"><svg class="icon"><use href="#i-list"/></svg>Security Logs</a>
+          <a href="{{ url_for('about_page') }}"><svg class="icon"><use href="#i-info"/></svg>About IoTShield</a>
+          <a href="{{ url_for('logout') }}" data-no-transition><svg class="icon"><use href="#i-logout"/></svg>Log out</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container page-enter">
+    {% if vault_sealed and page != 'custody' %}
+    <div class="banner" style="margin-top:18px"><svg class="icon"><use href="#i-lock"/></svg>
+      <span>The key vault is <b>sealed</b>, so devices cannot authenticate. <a href="{{ url_for('custody_page') }}">Unseal it on the Key Custody page</a>.</span></div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">IoTShield · Secure device authentication · HMAC-SHA256 · Ed25519 · Cryptography project</footer>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

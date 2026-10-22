@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login · IoTShield</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script>
+    /* Reloading the login page (F5 / Cmd+R) also goes back to the opening screen. */
+    try {
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (nav && nav.type === 'reload') {
+        document.documentElement.style.visibility = 'hidden';
+        window.location.replace("{{ url_for('splash') }}");
+      }
+    } catch (e) { /* ignore */ }
+  </script>
+  <script>
+    /* Use the theme the admin picked inside the app (dark by default). */
+    try {
+      if (localStorage.getItem('iotshield-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) { /* ignore */ }
+  </script>
+</head>
+<body class="login-body">
+  {% include "_icons.html" %}
+  
+
+  <header class="login-top">
+    <span class="brand">
+      <img class="brand-logo" src="{{ url_for('static', filename='assets/logo.svg') }}" alt="">
+      <span>IoT<em>Shield</em></span>
+    </span>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="icon i-sun-icon"><use href="#i-sun"/></svg>
+      <svg class="icon i-moon-icon"><use href="#i-moon"/></svg>
+    </button>
+  </header>
+
+  <main class="login-wrap">
+    <div class="login-badge"><i class="ln"></i><i class="dm"></i>
+      <span class="login-badge-pill">{% if stage == 'code' %}Two-factor check{% else %}Administrator sign-in{% endif %}</span>
+      <i class="dm"></i><i class="ln r"></i></div>
+    {% if stage == 'code' %}
+      <h1 class="login-title">Check your inbox</h1>
+      <p class="lead">
+        {% if masked_email %}We emailed a 6-digit code to <strong>{{ masked_email }}</strong>.
+        {% else %}Enter the 6-digit code we emailed you.{% endif %}
+      </p>
+    {% else %}
+      <h1 class="login-title">Sign in</h1>
+      <p class="lead">Sign in to the IoTShield console to manage, authenticate and update your devices.</p>
+    {% endif %}
+
+    <div class="card login-card">
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    {% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
+
+    <form method="post" action="{{ url_for('login') }}" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% if stage == 'code' %}
+        {% if fallback_code %}
+          <button type="button" id="fallbackCode" class="fallback-code" data-code="{{ fallback_code }}"
+                  title="Click to fill in the code below">
+            <span class="fallback-code-label">Could not send the email - here is your code for this demo</span>
+            <span class="fallback-code-value">{{ fallback_code }}</span>
+          </button>
+        {% endif %}
+        <div class="field">
+          <div class="field-body">
+            <label for="code">6-digit code</label>
+            <input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]*"
+                   autocomplete="one-time-code" maxlength="6" placeholder="000000" required autofocus>
+          </div>
+          <button class="field-go" type="submit" aria-label="Verify code" title="Verify code"><svg class="icon"><use href="#i-arrow-right"/></svg></button>
+        </div>
+        <div class="login-actions">
+          <button type="submit" name="resend" value="1" formnovalidate class="link-button">Resend code</button>
+          <button type="submit" name="cancel" value="1" formnovalidate class="link-button">Use a different account</button>
+        </div>
+      {% else %}
+        <div class="field">
+          <div class="field-body">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="Administrator username" required autofocus>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-body">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="Password" required>
+          </div>
+          <button class="field-go" type="submit" aria-label="Log in" title="Log in"><svg class="icon"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      {% endif %}
+    </form>
+    </div>
+
+  </main>
+
+  <script>
+    // Light / dark toggle. Same saved preference as inside the app, so the choice carries over to it.
+    (function () {
+      var root = document.documentElement, button = document.getElementById('themeToggle');
+      function label() {
+        var text = root.getAttribute('data-theme') === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+        button.setAttribute('aria-label', text);
+        button.setAttribute('title', text);
+      }
+      label();
+      button.addEventListener('click', function () {
+        var goingLight = root.getAttribute('data-theme') !== 'light';
+        root.setAttribute('data-theme', goingLight ? 'light' : 'dark');
+        label();
+        try { localStorage.setItem('iotshield-theme', goingLight ? 'light' : 'dark'); } catch (e) { /* ignore */ }
+      });
+    })();
+  </script>
+  {% if fallback_code %}
+  <script>
+    // Classroom convenience: let a click on the fallback code fill it into the field below.
+    (() => {
+      const button = document.getElementById('fallbackCode');
+      const codeInput = document.getElementById('code');
+      button.addEventListener('click', () => {
+        codeInput.value = button.dataset.code;
+        codeInput.focus();
+      });
+    })();
+  </script>
+  {% endif %}
+
+  <script>
+    // Sending the login code is a real email and can take a few seconds - disable every button
+    // in the form the instant it's submitted, so an impatient extra click (or double-click)
+    // can't fire a second request (and a second email) while the first one is still in flight.
+    (() => {
+      const form = document.querySelector('form');
+      form.addEventListener('submit', () => {
+        form.querySelectorAll('button').forEach((button) => { button.disabled = true; });
+      });
+    })();
+  </script>
+</body>
+</html>

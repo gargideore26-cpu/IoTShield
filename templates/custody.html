@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Key Custody{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Key custody</h1>
+    <p>The master key protects every device key. Split it into shares so that no single person, and no single file, holds it.</p>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-lock"/></svg>Master key</h2><span id="kcBadge"></span></div>
+    <div class="kv">
+      <div class="k">Status</div><div class="v" id="kcStatusText">Loading…</div>
+      <div class="k">Fingerprint</div><div class="v"><code class="mono" id="kcFingerprint">–</code><span class="sub">identifies the key; reveals nothing about it</span></div>
+      <div class="k">Shares issued</div><div class="v" id="kcShares">–</div>
+      <div class="k">Last rotation</div><div class="v" id="kcRotation">–</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-info"/></svg>How it works</h2></div>
+    <ul class="feature-list">
+      <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Split:</b> the key becomes <i>n</i> shares. Any <i>k</i> of them rebuild it; fewer than <i>k</i> reveal nothing at all.</span></li>
+      <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Seal:</b> the key file is deleted. A stolen disk or backup now holds only encrypted device keys.</span></li>
+      <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Unseal:</b> after a restart, <i>k</i> people enter their shares. The key lives in memory only.</span></li>
+      <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Rotate:</b> if a share leaks, make a brand-new key, re-encrypt every device key with it, and issue new shares. The old shares then open nothing.</span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="card mt" id="cardUnseal" hidden>
+  <div class="card-head"><h2><svg class="icon"><use href="#i-key"/></svg>Unseal the vault</h2></div>
+  <p class="hint" style="margin:0 0 12px">The vault is sealed, so devices cannot authenticate. Paste enough shares, one per line.</p>
+  <form id="unsealForm" class="stack" style="gap:12px" autocomplete="off" novalidate>
+    <div><label for="unsealShares">Shares</label><textarea id="unsealShares" rows="4" spellcheck="false" placeholder="IOTS1-3-5-…"></textarea></div>
+    <div class="row"><button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-key"/></svg>Unseal</button></div>
+  </form>
+</div>
+
+<div class="card mt" id="cardSplit">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-hash"/></svg>Split the key into shares</h2></div>
+  <form id="splitForm" class="form-grid" autocomplete="off" novalidate>
+    <div><label for="splitTotal">Number of shares (n)</label><input id="splitTotal" type="number" min="2" max="10" value="5"></div>
+    <div><label for="splitThreshold">Needed to rebuild (k)</label><input id="splitThreshold" type="number" min="2" max="10" value="3"></div>
+    <div><label for="splitPassword">Administrator password</label><input id="splitPassword" type="password" autocomplete="new-password"></div>
+    <button class="btn btn-primary" type="submit" id="splitBtn"><svg class="icon"><use href="#i-hash"/></svg>Create shares</button>
+  </form>
+  <p class="hint">Give each share to a different person. Creating new shares does <b>not</b> cancel old ones: they all rebuild the same key. If a share is ever leaked, use <b>Rotate the master key</b> below.</p>
+  <div id="sharesOut" hidden>
+    <div id="shareList" class="share-list"></div>
+    <div class="row" style="margin-top:12px"><button class="btn" type="button" id="btnHideShares">I have stored them, hide</button></div>
+  </div>
+</div>
+
+<div class="card mt" id="cardRotate" hidden>
+  <div class="card-head"><h2><svg class="icon"><use href="#i-refresh"/></svg>Rotate the master key</h2></div>
+  <p class="hint" style="margin:0 0 12px">Use this if a share may have leaked. A <b>brand-new</b> master key is made, every device key is re-encrypted with it, and <b>new shares</b> are issued. Afterwards the old shares rebuild a key that opens nothing. It is all-or-nothing: if anything goes wrong, nothing is changed.</p>
+  <form id="rotateForm" class="form-grid" autocomplete="off" novalidate>
+    <div><label for="rotateTotal">Number of shares (n)</label><input id="rotateTotal" type="number" min="2" max="10" value="5"></div>
+    <div><label for="rotateThreshold">Needed to rebuild (k)</label><input id="rotateThreshold" type="number" min="2" max="10" value="3"></div>
+    <div><label for="rotatePassword">Administrator password</label><input id="rotatePassword" type="password" autocomplete="new-password"></div>
+    <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-refresh"/></svg>Rotate key</button>
+  </form>
+  <label class="check-row"><input type="checkbox" id="rotateBackup" checked> Keep a safety copy of the database first <span class="card-sub">(protected by the <b>old</b> key, so delete it when you no longer need it)</span></label>
+  <p class="hint">What rotation does <b>not</b> do: it cannot undo a copy of the database that was already stolen, and it does not change the devices' own keys. If a leak may have reached the database too, also issue new device keys.</p>
+  <div id="rotateResult" class="result-box good" hidden></div>
+</div>
+
+<div class="card mt" id="cardTest">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-shield-check"/></svg>Test shares</h2></div>
+  <p class="hint" style="margin:0 0 12px">Check that some shares rebuild this server's key. Try it with enough shares, then with one too few. The key itself is never shown.</p>
+  <form id="testForm" class="stack" style="gap:12px" autocomplete="off" novalidate>
+    <div><label for="testShares">Shares</label><textarea id="testShares" rows="4" spellcheck="false" placeholder="IOTS1-3-5-…"></textarea></div>
+    <div class="row"><button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-shield-check"/></svg>Test</button><span class="card-sub" id="testCount"></span></div>
+  </form>
+  <div id="testResult" class="result-box" hidden></div>
+</div>
+
+<div class="card mt" id="cardSeal" hidden>
+  <div class="card-head"><h2><svg class="icon"><use href="#i-power"/></svg>Seal the vault</h2></div>
+  <p class="hint" style="margin:0 0 12px"><b>This deletes the key file from the disk.</b> Afterwards the server needs enough shares every time it starts. If you lose too many shares, every device key becomes unrecoverable. That is why sealing asks you to prove you hold enough valid shares first.</p>
+  <form id="sealForm" class="stack" style="gap:12px" autocomplete="off" novalidate>
+    <div><label for="sealShares">Enough shares to rebuild the key</label><textarea id="sealShares" rows="3" spellcheck="false" placeholder="IOTS1-3-5-…"></textarea></div>
+    <div class="grid grid-2" style="gap:12px">
+      <div><label for="sealPassword">Administrator password</label><input id="sealPassword" type="password" autocomplete="new-password"></div>
+      <div><label for="sealConfirm">Type SEAL to confirm</label><input id="sealConfirm" placeholder="SEAL"></div>
+    </div>
+    <div class="row"><button class="btn btn-danger" type="submit"><svg class="icon"><use href="#i-power"/></svg>Seal the vault now</button></div>
+  </form>
+</div>
+
+<div class="card mt" id="cardRestore" hidden>
+  <div class="card-head"><h2><svg class="icon"><use href="#i-refresh"/></svg>Stop using sealed mode</h2></div>
+  <p class="hint" style="margin:0 0 12px">The vault is unsealed and the key is held in memory only. To go back to the normal setup, write the key back to its file. (To lock it again, use "Seal the vault" above. To rotate the key, write it back first.)</p>
+  <form id="restoreForm" class="form-grid" style="grid-template-columns: minmax(0,1fr) auto" autocomplete="off" novalidate>
+    <div><label for="restorePassword">Administrator password</label><input id="restorePassword" type="password" autocomplete="new-password"></div>
+    <button class="btn" type="submit"><svg class="icon"><use href="#i-refresh"/></svg>Write key back to file</button>
+  </form>
+</div>
+{% endblock %}

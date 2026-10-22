@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Live overview of IoT device authentication across your fleet.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-primary" href="{{ url_for('authenticate_page') }}"><svg class="icon"><use href="#i-key"/></svg>Authenticate a Device</a>
+  </div>
+</div>
+
+<section class="grid grid-4" id="statCards">
+  <div class="card stat hoverable accent-cyan">
+    <div class="stat-icon"><svg class="icon"><use href="#i-cpu"/></svg></div>
+    <div><div class="stat-value" id="statTotal">–</div><div class="stat-label">Total Devices</div></div>
+  </div>
+  <div class="card stat hoverable accent-green">
+    <div class="stat-icon"><svg class="icon"><use href="#i-shield-check"/></svg></div>
+    <div><div class="stat-value" id="statOnline">–</div><div class="stat-label">Authenticated Devices</div></div>
+  </div>
+  <div class="card stat hoverable accent-red">
+    <div class="stat-icon"><svg class="icon"><use href="#i-alert"/></svg></div>
+    <div><div class="stat-value" id="statFailed">–</div><div class="stat-label">Failed Attempts</div></div>
+  </div>
+  <div class="card stat hoverable accent-purple">
+    <div class="stat-icon"><svg class="icon"><use href="#i-percent"/></svg></div>
+    <div><div class="stat-value" id="statRate">–</div><div class="stat-label">Authentication Success Rate</div></div>
+  </div>
+</section>
+
+<section class="mt">
+  <div class="card">
+    <div class="card-head">
+      <h2><svg class="icon"><use href="#i-activity"/></svg>IoT Device Status</h2>
+      <a class="btn btn-sm" href="{{ url_for('devices_page') }}">Manage devices</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Device</th><th>Type</th><th>Status</th><th>Last Authentication</th></tr></thead>
+        <tbody id="deviceStatusBody"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="hint"><span class="status status-online"><i class="dot"></i>Online</span> = authenticated in the last 15 minutes ·
+      <span class="status status-authenticating"><i class="dot"></i>Authenticating</span> = challenge issued, waiting for response ·
+      <span class="status status-offline"><i class="dot"></i>Offline</span> = no successful authentication in the last 15 minutes</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Firmware{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Firmware</h1>
+    <p>Every release is signed with Ed25519. Devices install only firmware whose signature verifies against the public key built into them.</p>
+  </div>
+</div>
+
+<section class="grid grid-4" id="fwStats">
+  <div class="card stat hoverable accent-cyan">
+    <div class="stat-icon"><svg class="icon"><use href="#i-package"/></svg></div>
+    <div><div class="stat-value mono" id="fwLatest">–</div><div class="stat-label">Latest Release</div></div>
+  </div>
+  <div class="card stat hoverable accent-green">
+    <div class="stat-icon"><svg class="icon"><use href="#i-shield-check"/></svg></div>
+    <div><div class="stat-value" id="fwUpToDate">–</div><div class="stat-label">Devices Up to Date</div></div>
+  </div>
+  <div class="card stat hoverable accent-red">
+    <div class="stat-icon"><svg class="icon"><use href="#i-alert"/></svg></div>
+    <div><div class="stat-value" id="fwOutdated">–</div><div class="stat-label">Devices Outdated</div></div>
+  </div>
+  <div class="card stat hoverable accent-purple">
+    <div class="stat-icon"><svg class="icon"><use href="#i-x-circle"/></svg></div>
+    <div><div class="stat-value" id="fwRejected">–</div><div class="stat-label">Malicious Updates Blocked</div></div>
+  </div>
+</section>
+
+<div class="grid grid-2 mt">
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-upload"/></svg>Publish Firmware</h2></div>
+    <form id="publishForm" class="stack" style="gap:14px" autocomplete="off" novalidate>
+      <div>
+        <label for="fwFile">Firmware image</label>
+        <input type="file" id="fwFile" name="file" required>
+      </div>
+      <div class="grid grid-2" style="gap:14px">
+        <div>
+          <label for="fwVersion">Version</label>
+          <input id="fwVersion" name="version" placeholder="e.g. 1.3.0" maxlength="14" required>
+        </div>
+        <div>
+          <label for="fwNotes">Release notes</label>
+          <input id="fwNotes" name="notes" placeholder="e.g. Fixes Wi-Fi reconnect" maxlength="120">
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit" id="publishBtn"><svg class="icon"><use href="#i-key"/></svg>Sign &amp; Publish</button>
+    </form>
+    <p class="hint" id="publishHint">The server hashes the image with SHA-256 and signs (version, hash) with its private key.</p>
+  </div>
+
+  <div class="card" style="align-self:start">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-lock"/></svg>Signing Key</h2></div>
+    <p>Ed25519 · fingerprint <code class="mono" id="fwFingerprint">–</code></p>
+    <p class="hint" style="margin-top:6px">The private key stays on the server and can sign. The public key built into every device can only verify.</p>
+    <details class="fold">
+      <summary><span class="show">Show key details</span><span class="hide">Hide key details</span></summary>
+      <div class="kv" style="margin-top:6px">
+        <div class="k">Algorithm</div><div class="v">Ed25519 digital signature</div>
+        <div class="k">Private key</div><div class="v"><span class="masked">••••••••••••</span><span class="sub">stays on the server · can sign</span></div>
+        <div class="k">Public key</div><div class="v"><code class="mono fw-key" id="fwPublicKey">–</code><span class="sub">built into every device · can only verify</span></div>
+        <div class="k">What is signed</div><div class="v"><code class="mono fw-key">IoTShield-firmware | version | SHA-256(image)</code></div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div class="auth-layout mt">
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-cpu"/></svg>Update Simulator</h2></div>
+    <div class="grid grid-2" style="gap:14px">
+      <div>
+        <label for="simDevice">Device</label>
+        <select id="simDevice"><option value="">Loading…</option></select>
+      </div>
+      <div>
+        <label for="simVersion">Firmware to install</label>
+        <select id="simVersion"><option value="">Loading…</option></select>
+      </div>
+    </div>
+    <div class="row mt">
+      <button class="btn btn-primary" data-attack="none"><svg class="icon"><use href="#i-play"/></svg>Install genuine update</button>
+    </div>
+    <div class="attack">
+      <h4><svg class="icon"><use href="#i-swords"/></svg>Malicious update simulations</h4>
+      <p>Each one is something attackers really try. Watch the device refuse it.</p>
+      <div class="row">
+        <button class="btn btn-sm btn-danger" data-attack="tamper" title="Change one bit of the image in transit">Tamper one bit</button>
+        <button class="btn btn-sm btn-danger" data-attack="forged" title="Sign with the attacker's own private key">Attacker-signed</button>
+        <button class="btn btn-sm btn-danger" data-attack="relabel" title="Old genuine image, presented as the newest version">Relabel old as new</button>
+        <button class="btn btn-sm btn-danger" data-attack="downgrade" title="Genuine but older version (rollback attack)">Downgrade</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2><svg class="icon"><use href="#i-terminal"/></svg>Update Trace</h2>
+      <button class="btn btn-sm" id="btnClearFwTrace">Clear</button>
+    </div>
+    <div class="trace fw-trace" id="fwTrace"><div class="line muted">Pick a device and an update to start…</div></div>
+  </div>
+</div>
+
+<div class="card mt">
+  <div class="card-head">
+    <h2><svg class="icon"><use href="#i-activity"/></svg>Device Fleet</h2>
+    <span class="card-sub" id="fleetSummary"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Device</th><th>Installed Version</th><th>Status</th></tr></thead>
+      <tbody id="fleetBody"><tr><td colspan="3" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card mt">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-package"/></svg>Releases</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Version</th><th>File</th><th>SHA-256</th><th>Signature</th><th>Published</th></tr></thead>
+      <tbody id="releasesBody"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card mt">
+  <div class="card-head"><h2><svg class="icon"><use href="#i-history"/></svg>Update Log</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time</th><th>Device</th><th>Version</th><th>Result</th><th>Details</th></tr></thead>
+      <tbody id="fwEventsBody"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

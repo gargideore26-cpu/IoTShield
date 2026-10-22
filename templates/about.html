@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>About</h1>
+    <p>How IoTShield authenticates devices and protects their keys.</p>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h2><svg class="icon"><use href="#i-shield-check"/></svg>How IoTShield Protects IoT Devices</h2></div>
+    <div class="flow" id="flow">
+      <div class="flow-step s-device"><svg class="icon"><use href="#i-cpu"/></svg><div>IoT Device<small>wants to connect</small></div><span class="who device">DEVICE</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-device"><svg class="icon"><use href="#i-play"/></svg><div>Authentication Request<small>"I am TEMP-001"</small></div><span class="who device">DEVICE → SERVER</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-server"><svg class="icon"><use href="#i-zap"/></svg><div>Server Generates Random Challenge<small>secrets.token_hex(32)</small></div><span class="who server">SERVER</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-server"><svg class="icon"><use href="#i-server"/></svg><div>Challenge Sent to Device<small>valid once, for 2 minutes</small></div><span class="who server">SERVER → DEVICE</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-device"><svg class="icon"><use href="#i-key"/></svg><div>Device Creates HMAC<small>HMAC-SHA256(secret key, challenge)</small></div><span class="who device">DEVICE</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-device"><svg class="icon"><use href="#i-hash"/></svg><div>HMAC Sent to Server<small>the key itself is never sent</small></div><span class="who device">DEVICE → SERVER</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-server"><svg class="icon"><use href="#i-lock"/></svg><div>Server Verifies HMAC<small>recompute + hmac.compare_digest()</small></div><span class="who server">SERVER</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step s-result"><svg class="icon"><use href="#i-shield-check"/></svg><div>ACCESS GRANTED / DENIED<small>result saved in the security log</small></div><span class="who result">RESULT</span></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2><svg class="icon"><use href="#i-info"/></svg>About Cryptography</h2></div>
+      <div class="explain">
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-key"/></svg>HMAC</h3>
+          <p>HMAC is a cryptographic technique that uses a secret key and a hash function to verify the authenticity and integrity of a message.</p>
+          <span class="formula">HMAC(K, m) = H((K ⊕ opad) ‖ H((K ⊕ ipad) ‖ m))</span>
+        </div>
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-hash"/></svg>SHA-256</h3>
+          <p>SHA-256 is a secure hashing algorithm that produces a 256-bit hash value.</p>
+        </div>
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-refresh"/></svg>Challenge–Response</h3>
+          <p>The server sends a unique random challenge and the device proves that it knows the secret key without sending the secret key itself.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2><svg class="icon"><use href="#i-lock"/></svg>Security Features in this Project</h2></div>
+      <ul class="feature-list">
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Random challenges</b> from Python's <code>secrets</code> module (OS secure random).</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Constant-time comparison</b> with <code>hmac.compare_digest()</code> stops timing attacks.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Replay protection:</b> each challenge works once and expires after 2 minutes.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Keys encrypted at rest</b> (Fernet/AES) and never sent to the browser.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Admin login</b> with sessions, CSRF tokens and a lockout after repeated failures.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Two-factor authentication:</b> a random 6-digit code emailed to the administrator, valid once for 10 minutes.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Rate-limited device authentication:</b> a device is locked out for a minute after 5 failed attempts.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Key custody:</b> the master key can be split into shares (Shamir) and the vault sealed, so no single person or file holds it.</span></li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg><span><b>Full audit trail</b> of every success and failure.</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2><svg class="icon"><use href="#i-shield-check"/></svg>How Secure Is This, Really?</h2></div>
+      <div class="explain">
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-key"/></svg>Device keys: 2²⁵⁶ possibilities</h3>
+          <p>Even at 10¹⁸ guesses per second — far beyond any real hardware — brute-forcing a 256-bit
+             key would take roughly 10⁴¹ times the current age of the universe. Rate limiting adds
+             nothing to this; the math already makes it infeasible.</p>
+        </div>
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-lock"/></svg>The 6-digit login code: a different story</h3>
+          <p>An emailed code has only 10⁶ possibilities. Without a lockout, a computer could try
+             all of them in well under a second. That is exactly why the login locks out after 5
+             failed attempts, why a code stops working after 5 wrong guesses of its own, and why
+             it expires after 10 minutes either way.</p>
+        </div>
+        <div class="explain-item">
+          <h3><svg class="icon"><use href="#i-refresh"/></svg>Without the key, an attacker can...</h3>
+          <p><b>Cannot:</b> forge a valid HMAC, replay an old response, or recover a key from a
+             stolen database. <b>Can:</b> see that a device ID exists, and send guesses — which are
+             now rate-limited and logged. See the README's "Security Analysis" section for the numbers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
