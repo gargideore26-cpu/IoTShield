@@ -348,8 +348,6 @@ python test_iotshield.py
 - The firmware signing key never leaves the server.
 - The administrator is protected by a password, a one-time emailed code, CSRF tokens, rate limiting and automatic sign-out.
 
-A longer analysis (key-space calculation, why challenges expire, how the Shamir maths works, how rotation stays crash-safe) is in [docs/TECHNICAL-NOTES.md](docs/TECHNICAL-NOTES.md).
-
 ---
 
 ## Limitations
