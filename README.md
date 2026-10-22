@@ -1,8 +1,7 @@
 # IoTShield – Secure Device Authentication Using HMAC
 
 A working web application that shows how **cryptography can authenticate IoT devices**
-before they are allowed to use a server. Built as a college Cryptography project
-(Python + Flask + SQLite, with a dark cybersecurity dashboard).
+before they are allowed to use a server.
 
 ---
 
