@@ -91,6 +91,16 @@ class IoTShieldTests(unittest.TestCase):
         anonymous = iotshield.app.test_client()
         self.assertEqual(anonymous.get("/dashboard").status_code, 302)
         self.assertEqual(anonymous.get("/api/devices").status_code, 401)
+        # logging in lands on the Home page, which also needs a login
+        self.client = iotshield.app.test_client()          # a fresh browser, so the login form is shown again
+        self.assertTrue(self.login().headers["Location"].endswith("/home"))
+        self.assertEqual(self.client.get("/home").status_code, 200)
+        self.assertEqual(anonymous.get("/home").status_code, 302)
+        # the dashboard has its counters and panels, and the menu links to Home
+        page = self.client.get("/dashboard").get_data(as_text=True)
+        for element in ("statTotal", "statOnline", "statFailed", "statRate", "fleetBody", "secVault", "activityList", "attemptChart"):
+            self.assertIn(f'id="{element}"', page)
+        self.assertIn('href="/home"', page)
 
     def test_02_wrong_password_rejected(self):
         client = iotshield.app.test_client()

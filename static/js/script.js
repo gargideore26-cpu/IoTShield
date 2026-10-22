@@ -198,28 +198,84 @@
   setInterval(checkIdle, 5000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIdle(); });
 
-  /* ---------- 3. dashboard: stat cards + device status table ---------- */
+  /* ---------- 3. dashboard: statistics, fleet, security status, activity, chart ---------- */
   function initDashboard() {
     let firstLoad = true;
+    const VAULT_TEXT = {
+      normal: 'Key stored in a file', sealed: 'Sealed: devices cannot authenticate',
+      unsealed: 'Unsealed: key held in memory only', environment: 'Key supplied by the environment',
+    };
+
+    function renderChart(logs) {
+      const buckets = [];
+      for (let i = 11; i >= 0; i--) {
+        const start = new Date(); start.setMinutes(0, 0, 0); start.setHours(start.getHours() - i);
+        buckets.push({ start: start.getTime(), ok: 0, bad: 0 });
+      }
+      let inWindow = 0;
+      logs.forEach((log) => {
+        const time = new Date(log.timestamp).getTime();
+        const bucket = buckets.find((item) => time >= item.start && time < item.start + 3600000);
+        if (!bucket) return;
+        inWindow += 1;
+        if (log.result === 'SUCCESS') bucket.ok += 1; else bucket.bad += 1;
+      });
+      const peak = Math.max(1, ...buckets.map((item) => item.ok + item.bad));
+      $('#chartTotal').textContent = `${inWindow} attempt${inWindow === 1 ? '' : 's'}`;
+      $('#attemptChart').innerHTML = buckets.map((item) => {
+        const hour = String(new Date(item.start).getHours()).padStart(2, '0');
+        return `<div class="bar-col" title="${hour}:00 · ${item.ok} successful, ${item.bad} failed">
+          <div class="bar-stack">
+            <i class="bar bad" style="height:${(item.bad / peak) * 100}%"></i>
+            <i class="bar ok" style="height:${(item.ok / peak) * 100}%"></i>
+          </div><span>${hour}</span></div>`;
+      }).join('');
+    }
+
     async function refresh() {
       try {
-        const [stats, deviceData] = await Promise.all([api('/api/stats'), api('/api/devices')]);
+        const [stats, deviceData, logData, firmware, vault] = await Promise.all([
+          api('/api/stats'), api('/api/devices'), api('/api/logs'), api('/api/firmware'), api('/api/custody'),
+        ]);
 
         animateNumber($('#statTotal'), stats.total_devices);
         animateNumber($('#statOnline'), stats.online_devices);
         animateNumber($('#statFailed'), stats.failed_attempts);
         animateNumber($('#statRate'), stats.success_rate, { decimals: 1, suffix: '%' });
 
-        $('#deviceStatusBody').innerHTML = deviceData.devices.length
+        const versions = Object.fromEntries(firmware.devices.map((device) => [device.device_id, device]));
+        $('#fleetBody').innerHTML = deviceData.devices.length
           ? deviceData.devices.map((device) => `
             <tr>
-              <td><a class="dev-id" href="/devices/${encodeURIComponent(device.device_id)}">${escapeHtml(device.device_id)}</a>${demoBadge(device.is_demo)}
+              <td><a class="dev-id" href="/devices/${encodeURIComponent(device.device_id)}">${escapeHtml(device.device_id)}</a>
                   <span class="sub">${escapeHtml(device.device_name)}</span></td>
-              <td>${escapeHtml(device.device_type)}</td>
               <td>${statusBadge(device.status)}</td>
+              <td>${fwVersion(versions[device.device_id] && versions[device.device_id].firmware_version)}</td>
               <td>${timeAgo(device.last_authenticated)}</td>
             </tr>`).join('')
           : '<tr><td colspan="4" class="empty">No devices registered yet.</td></tr>';
+
+        const sealed = vault.state === 'sealed';
+        $('#secVault').innerHTML = `<span class="badge ${sealed ? 'badge-failed' : 'badge-success'}">${escapeHtml(vault.state)}</span>
+          <span class="sub">${escapeHtml(VAULT_TEXT[vault.state] || '')}</span>`;
+        $('#secShares').textContent = vault.shares ? `${vault.shares.threshold} of ${vault.shares.total} needed` : 'Not split yet';
+        $('#secRotation').textContent = vault.rotated_at ? fmtDateTime(vault.rotated_at) : 'Never';
+        $('#secFirmware').innerHTML = firmware.latest ? fwVersion(firmware.latest) : '<span class="card-sub">None published</span>';
+        const upToDate = firmware.devices.filter((device) => device.firmware_status === 'up_to_date').length;
+        $('#secOutdated').textContent = firmware.latest ? `${upToDate} of ${firmware.devices.length} devices up to date` : '–';
+        $('#secBlocked').textContent = String(firmware.events.filter((event) => event.result === 'REJECTED').length);
+
+        $('#activityList').innerHTML = logData.logs.length
+          ? logData.logs.slice(0, 8).map((log) => `
+            <div class="act-row">
+              <span class="dot ${log.result === 'SUCCESS' ? 'ok' : 'bad'}"></span>
+              <span class="dev-id">${escapeHtml(log.device_id)}</span>
+              <span class="act-reason">${escapeHtml(log.reason || (log.result === 'SUCCESS' ? 'Authenticated' : 'Failed'))}</span>
+              <span class="act-time">${timeAgo(log.timestamp)}</span>
+            </div>`).join('')
+          : '<p class="empty">No authentication attempts yet.</p>';
+
+        renderChart(logData.logs);
         firstLoad = false;
       } catch (error) {
         if (firstLoad) toast(error.message, 'error');

@@ -3,48 +3,80 @@
 {% block content %}
 <div class="page-head">
   <div>
-    <h1>Dashboard</h1>
-    <p>Live overview of IoT device authentication across your fleet.</p>
+    <h1>dashboard</h1>
+    <p>Live overview of your devices, their security and recent activity.</p>
   </div>
   <div class="row">
-    <a class="btn btn-primary" href="{{ url_for('authenticate_page') }}"><svg class="icon"><use href="#i-key"/></svg>Authenticate a Device</a>
+    <a class="btn btn-primary" href="{{ url_for('authenticate_page') }}">Authenticate a device</a>
   </div>
 </div>
 
 <section class="grid grid-4" id="statCards">
-  <div class="card stat hoverable accent-cyan">
+  <div class="card stat">
     <div class="stat-icon"><svg class="icon"><use href="#i-cpu"/></svg></div>
-    <div><div class="stat-value" id="statTotal">–</div><div class="stat-label">Total Devices</div></div>
+    <div><div class="stat-value" id="statTotal">–</div><div class="stat-label">Devices registered</div></div>
   </div>
-  <div class="card stat hoverable accent-green">
+  <div class="card stat accent-green">
     <div class="stat-icon"><svg class="icon"><use href="#i-shield-check"/></svg></div>
-    <div><div class="stat-value" id="statOnline">–</div><div class="stat-label">Authenticated Devices</div></div>
+    <div><div class="stat-value" id="statOnline">–</div><div class="stat-label">Authenticated devices</div></div>
   </div>
-  <div class="card stat hoverable accent-red">
+  <div class="card stat accent-red">
     <div class="stat-icon"><svg class="icon"><use href="#i-alert"/></svg></div>
-    <div><div class="stat-value" id="statFailed">–</div><div class="stat-label">Failed Attempts</div></div>
+    <div><div class="stat-value" id="statFailed">–</div><div class="stat-label">Failed attempts</div></div>
   </div>
-  <div class="card stat hoverable accent-purple">
+  <div class="card stat">
     <div class="stat-icon"><svg class="icon"><use href="#i-percent"/></svg></div>
-    <div><div class="stat-value" id="statRate">–</div><div class="stat-label">Authentication Success Rate</div></div>
+    <div><div class="stat-value" id="statRate">–</div><div class="stat-label">Success rate</div></div>
   </div>
 </section>
 
-<section class="mt">
+<section class="grid grid-3-1 mt">
   <div class="card">
     <div class="card-head">
-      <h2><svg class="icon"><use href="#i-activity"/></svg>IoT Device Status</h2>
+      <h2>Fleet status</h2>
       <a class="btn btn-sm" href="{{ url_for('devices_page') }}">Manage devices</a>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Device</th><th>Type</th><th>Status</th><th>Last Authentication</th></tr></thead>
-        <tbody id="deviceStatusBody"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+        <thead><tr><th>Device</th><th>Status</th><th>Firmware</th><th>Last authentication</th></tr></thead>
+        <tbody id="fleetBody"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
     <p class="hint"><span class="status status-online"><i class="dot"></i>Online</span> = authenticated in the last 15 minutes ·
-      <span class="status status-authenticating"><i class="dot"></i>Authenticating</span> = challenge issued, waiting for response ·
       <span class="status status-offline"><i class="dot"></i>Offline</span> = no successful authentication in the last 15 minutes</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Security status</h2></div>
+    <div class="kv kv-sm" id="securityBox">
+      <div class="k">Key vault</div><div class="v" id="secVault">–</div>
+      <div class="k">Key shares</div><div class="v" id="secShares">–</div>
+      <div class="k">Last rotation</div><div class="v" id="secRotation">–</div>
+      <div class="k">Latest firmware</div><div class="v" id="secFirmware">–</div>
+      <div class="k">Firmware</div><div class="v" id="secOutdated">–</div>
+      <div class="k">Updates blocked</div><div class="v" id="secBlocked">–</div>
+    </div>
+    <p class="hint"><a href="{{ url_for('custody_page') }}">Key custody</a> · <a href="{{ url_for('firmware_page') }}">Firmware</a></p>
+  </div>
+</section>
+
+<section class="grid grid-2 mt">
+  <div class="card">
+    <div class="card-head">
+      <h2>Recent activity</h2>
+      <a class="btn btn-sm" href="{{ url_for('logs_page') }}">View all logs</a>
+    </div>
+    <div class="act-list" id="activityList"><p class="empty">Loading…</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Attempts, last 12 hours</h2>
+      <span class="card-sub" id="chartTotal"></span>
+    </div>
+    <div class="bar-chart" id="attemptChart" role="img" aria-label="Authentication attempts per hour"></div>
+    <p class="hint"><span class="status status-online"><i class="dot"></i>Successful</span> ·
+      <span class="status status-offline"><i class="dot"></i>Failed</span> · based on the latest 300 attempts</p>
   </div>
 </section>
 {% endblock %}

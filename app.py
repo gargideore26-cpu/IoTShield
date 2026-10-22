@@ -513,7 +513,7 @@ def login():
     a stolen session cookie used from elsewhere).
     """
     if session.get("admin"):
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("home"))
 
     purge_expired_email_codes()
 
@@ -587,7 +587,7 @@ def login():
                 error = "Please enter the 6-digit code we emailed you."
             elif crypto.verify_otp_code(entry["code"], code):
                 finish_login(pending_admin)
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("home"))
             else:
                 record_failure()
                 entry["attempts"] += 1
@@ -621,7 +621,7 @@ def login():
                         return redirect(url_for("login"))
                     else:
                         finish_login(username)
-                        return redirect(url_for("dashboard"))
+                        return redirect(url_for("home"))
                 else:
                     record_failure()
                     error = "Invalid username or password."
@@ -653,6 +653,12 @@ def logout():
     if request.args.get("reason") == "reload":      # the page was refreshed: start over from the opening screen
         return redirect(url_for("splash"))
     return redirect(url_for("login", expired=1 if request.args.get("reason") == "idle" else None))
+
+
+@app.get("/home")
+@login_required
+def home():
+    return render_template("home.html", page="home")
 
 
 @app.get("/dashboard")

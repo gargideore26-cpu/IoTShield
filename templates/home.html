@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="dome-hero">
+  <h1>Every device, <span class="dim">verified</span><br><span class="dim">before it</span> connects</h1>
+  <p class="dome-sub">Devices prove who they are without sending their secret. Firmware is signed, and the key that protects it all is split between people.</p>
+  <a class="btn btn-primary dome-cta" href="{{ url_for('authenticate_page') }}">Authenticate a device</a>
+
+</section>
+
+<section class="benefits">
+  <h2 class="section-title">what it protects</h2>
+  <div class="benefit-grid">
+    <a class="benefit" href="{{ url_for('authenticate_page') }}">
+      <h3>device authentication</h3>
+      <p>a challenge only the real device can answer. the secret key never crosses the network, and every challenge works once.</p>
+      <span class="more">open authenticate</span>
+    </a>
+    <a class="benefit" href="{{ url_for('firmware_page') }}">
+      <h3>signed firmware</h3>
+      <p>ed25519 signatures with anti-rollback: tampered, forged or older updates are refused and logged.</p>
+      <span class="more">open firmware</span>
+    </a>
+    <a class="benefit" href="{{ url_for('custody_page') }}">
+      <h3>key custody</h3>
+      <p>the master key is split between people and can be sealed off the disk. a stolen disk reveals nothing.</p>
+      <span class="more">open key custody</span>
+    </a>
+  </div>
+</section>
+{% endblock %}

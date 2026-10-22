@@ -39,8 +39,8 @@
   --tile-from: #1b2027;
   --tile-to: #1b2027;
   --shadow: 0 1px 2px rgba(0, 0, 0, .35);
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius: 18px;
+  --radius-sm: 12px;
   --sans: 'Inter Tight', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --serif: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
@@ -157,25 +157,6 @@ body.leaving .container { opacity: 0; transform: translateY(8px); transition: op
 .profile-menu a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: var(--text); font-size: .88rem; }
 .profile-menu a .icon { width: 16px; height: 16px; color: var(--muted); }
 .profile-menu a:hover { background: rgba(243, 198, 63, .08); text-decoration: none; }
-
-/* desktop: the navigation is a fixed vertical sidebar on the left (phones keep the top bar) */
-@media (min-width: 961px) {
-  body:not(.login-body) { padding-left: 240px; }
-  .topnav {
-    position: fixed; top: 0; left: 0; bottom: 0; width: 240px; height: 100vh;
-    border-bottom: none; border-right: 1px solid var(--line);
-    background: var(--panel-solid);
-  }
-  .topnav-inner { max-width: none; height: 100%; margin: 0; padding: 22px 14px 18px; flex-direction: column; align-items: stretch; gap: 0; }
-  .brand { padding: 2px 10px 20px; font-size: 1.1rem; }
-  .brand-logo { width: auto; height: 32px; }
-  .nav-links { position: static; transform: none; flex: 1; flex-direction: column; gap: 3px; margin: 0; padding-top: 18px; border-top: 1px solid var(--line); }
-  .nav-links a { padding: 9px 12px; font-size: .92rem; border-radius: 6px; }
-  .nav-links a .icon { display: block; width: 16px; height: 16px; }
-  .nav-right { margin: 0; padding-top: 14px; border-top: 1px solid var(--line); justify-content: space-between; }
-  .profile-menu { top: auto; bottom: 44px; right: auto; left: 0; }
-  .auth-layout > .card:last-child { top: 24px; }
-}
 
 /* ---------- 5. layout ---------- */
 .container { width: 100%; max-width: 1320px; margin: 0 auto; padding: 0 24px 56px; flex: 1; }
@@ -590,3 +571,134 @@ textarea::placeholder { color: var(--faint); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- 15. reference restyle: floating pill navigation, big light headings, glowing gold shapes, soft cards ---------- */
+:root { --display: 'Jost', 'Inter Tight', system-ui, sans-serif; }
+
+/* floating pill navigation */
+.topnav { background: rgba(14, 16, 19, .78); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: none; }
+[data-theme="light"] .topnav { background: rgba(251, 250, 246, .82); }
+.topnav-inner { max-width: 1320px; height: 76px; }
+.brand { padding: 9px 18px; border-radius: 999px; background: var(--panel-solid); border: 1px solid var(--line); }
+.nav-links { padding: 4px; border-radius: 999px; background: var(--panel-solid); border: 1px solid var(--line); gap: 0; }
+.nav-links a {
+  font-family: var(--sans); font-size: .84rem; font-weight: 400; letter-spacing: 0; text-transform: lowercase;
+  padding: 8px 14px; border-radius: 999px;
+}
+.nav-links a.active { background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: 999px; color: var(--accent); }
+.nav-cta { padding: 9px 20px; }
+.theme-toggle, .profile-btn { border-radius: 999px; width: 38px; height: 38px; background: var(--panel-solid); }
+
+/* soft, rounded surfaces */
+.card, .login-card { border-radius: 22px; }
+.card { padding: 22px; }
+.modal { border-radius: 26px; }
+.toast, .banner, .attack, .trace, .flow-step, .explain-item, .profile-menu { border-radius: 16px; }
+.result-lines, .field, .share, .result-box, .codebox, textarea, input, select { border-radius: 12px; }
+.btn { font-family: var(--sans); font-weight: 500; text-transform: lowercase; letter-spacing: 0; font-size: .9rem; border-radius: 999px; padding: 8px 20px; }
+.btn-sm { padding: 5px 14px; font-size: .82rem; }
+.badge { border-radius: 999px; padding: 3px 10px; }
+.seg, .seg button { border-radius: 999px; }
+.step-num, .field-go { border-radius: 12px; }
+.card-head h2 { font-family: var(--sans); font-size: 1rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+/* big, light, lowercase headings */
+h1, .page-head h1, .login-title { font-family: var(--display); font-weight: 300; letter-spacing: -.02em; text-transform: lowercase; }
+.page-head { padding: 30px 0 20px; }
+.page-head h1 { font-size: 2.4rem; line-height: 1.05; }
+.page-head p { font-size: .95rem; }
+.section-title { font-family: var(--display); font-weight: 300; font-size: 2.2rem; text-align: center; letter-spacing: -.01em; margin: 56px 0 28px; }
+
+/* dashboard hero: centred headline */
+.dome-hero { position: relative; text-align: center; padding: 64px 0 40px; }
+.dome-hero h1 {
+  position: relative; z-index: 2; max-width: 880px; margin: 0 auto 20px; font-family: var(--sans); font-weight: 500; text-transform: none;
+  letter-spacing: -.035em; line-height: 1.06; font-size: clamp(2.4rem, 5.6vw, 4.4rem); color: var(--text);
+}
+.dome-hero h1 .dim { color: var(--faint); }
+.dome-sub { position: relative; z-index: 2; max-width: 540px; margin: 0 auto 28px; color: var(--muted); font-size: .96rem; line-height: 1.6; }
+.dome-cta { position: relative; z-index: 2; padding: 11px 26px; border-radius: 10px; font-size: .92rem; }
+@media (max-width: 960px) { .dome-hero { padding: 40px 0 28px; } }
+
+/* dashboard page: security status, activity list, attempts chart */
+.kv-sm { grid-template-columns: 112px 1fr; }
+.kv-sm > div { padding: 10px 0; }
+.kv-sm .k { padding-top: 12px; }
+.kv-sm .sub { margin-top: 4px; }
+.act-list { display: flex; flex-direction: column; }
+.act-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--line); font-size: .88rem; }
+.act-row:first-child { border-top: none; }
+.act-row .dot.ok { background: var(--green); } .act-row .dot.bad { background: var(--red); }
+.act-reason { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-time { color: var(--faint); font-size: .8rem; white-space: nowrap; }
+.bar-chart { display: flex; align-items: stretch; gap: 6px; height: 170px; }
+.bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar-stack { flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; }
+.bar { display: block; width: 100%; border-radius: 4px; min-height: 0; }
+.bar.ok { background: var(--green); opacity: .85; } .bar.bad { background: var(--red); opacity: .9; }
+.bar-col span { font-family: var(--mono); font-size: .62rem; color: var(--faint); }
+
+/* "benefits" cards */
+.benefit-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.benefit {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; min-height: 250px; padding: 28px 26px; border-radius: 26px;
+  color: var(--text); border: 1px solid var(--line); background: linear-gradient(155deg, rgba(243, 198, 63, .11), var(--panel-solid) 62%);
+  transition: border-color .2s, transform .2s;
+}
+.benefit:hover { text-decoration: none; border-color: var(--line-strong); transform: translateY(-3px); }
+.benefit h3 { font-family: var(--display); font-weight: 400; font-size: 1.45rem; letter-spacing: -.01em; }
+.benefit p { color: var(--muted); font-size: .88rem; max-width: 36ch; }
+.benefit .more { margin-top: auto; color: var(--accent); font-size: .84rem; }
+@media (max-width: 960px) { .benefit-grid { grid-template-columns: 1fr; } .benefit { min-height: 200px; } .page-head h1 { font-size: 2rem; } }
+@media (max-width: 640px) { .section-title { font-size: 1.8rem; margin: 40px 0 20px; } }
+@media (max-width: 1100px) { .nav-cta { display: none; } .nav-links a { padding: 8px 10px; } }
+
+/* ---------- 16. page background: soft black-and-gold glow (dark) / white-and-gold glow (light) ---------- */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(55% 38% at 100% 100%, rgba(255, 217, 128, .62), rgba(255, 217, 128, 0) 72%),
+    radial-gradient(70% 46% at 6% 84%, rgba(243, 198, 63, .55), rgba(243, 198, 63, 0) 72%),
+    radial-gradient(95% 42% at 52% 112%, rgba(224, 170, 18, .62), rgba(224, 170, 18, 0) 72%),
+    radial-gradient(34% 22% at 94% 64%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 72%),
+    #08090a;
+}
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(55% 38% at 100% 100%, rgba(255, 214, 120, .65), rgba(255, 214, 120, 0) 72%),
+    radial-gradient(70% 46% at 6% 84%, rgba(243, 198, 63, .45), rgba(243, 198, 63, 0) 72%),
+    radial-gradient(95% 42% at 52% 112%, rgba(224, 170, 18, .38), rgba(224, 170, 18, 0) 72%),
+    #fbfaf6;
+}
+.footer { color: var(--muted); }
+
+/* ---------- 17. icon navigation: every link shows its icon; hovering (or focusing) one shows its full name above it, and the current page always shows its name beside its icon ---------- */
+.topnav-inner { height: 98px; padding-top: 26px; }
+.nav-links a { position: relative; gap: 0; padding: 9px 13px; }
+.nav-links a .icon { display: block; width: 17px; height: 17px; }
+.nav-links a .label {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); z-index: 60; padding: 4px 11px; border-radius: 8px; white-space: nowrap;
+  font-size: .76rem; line-height: 1.4; color: var(--text); background: var(--panel-solid); border: 1px solid var(--line-strong);
+  opacity: 0; pointer-events: none; transform: translate(-50%, 4px); transition: opacity .15s ease, transform .15s ease;
+}
+.nav-links a .label::after {
+  content: ''; position: absolute; left: 50%; top: 100%; width: 8px; height: 8px; background: var(--panel-solid);
+  border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); transform: translate(-50%, -4px) rotate(45deg);
+}
+.nav-links a:hover .label, .nav-links a:focus-visible .label { opacity: 1; transform: translate(-50%, 0); }
+.nav-links a.active .label {
+  position: static; margin-left: 8px; padding: 0; border: 0; border-radius: 0; background: none; font-size: inherit; line-height: inherit;
+  color: inherit; opacity: 1; transform: none; pointer-events: auto;
+}
+.nav-links a.active .label::after { display: none; }
+@media (min-width: 1151px) { .auth-layout > .card:last-child { top: 114px; } }
+@media (max-width: 960px) {
+  .topnav-inner { height: 64px; padding-top: 0; }
+  .nav-links a { padding: 11px 12px; }
+  .nav-links a .label {
+    position: static; margin-left: 10px; padding: 0; border: 0; border-radius: 0; background: none; font-size: inherit; line-height: inherit;
+    color: inherit; opacity: 1; transform: none; pointer-events: auto;
+  }
+  .nav-links a .label::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .nav-links a .label { transition: none; } }

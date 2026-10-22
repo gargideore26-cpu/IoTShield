@@ -99,7 +99,7 @@
     entering = true;
     splash.classList.add('entering');
     setTimeout(() => splash.classList.add('leaving'), reducedMotion ? 0 : FLY_MS - 200);
-    setTimeout(() => { window.location.href = '/dashboard'; }, (reducedMotion ? 0 : FLY_MS - 200) + FADE_MS);
+    setTimeout(() => { window.location.href = '/home'; }, (reducedMotion ? 0 : FLY_MS - 200) + FADE_MS);
   }
 
   async function run() {

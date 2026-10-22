@@ -27,7 +27,7 @@
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body data-page="{{ page }}" {% block body_attrs %}{% endblock %}>
@@ -36,7 +36,7 @@
 
   <header class="topnav">
     <div class="topnav-inner">
-      <a class="brand" href="{{ url_for('dashboard') }}">
+      <a class="brand" href="{{ url_for('home') }}">
         <img class="brand-logo" src="{{ url_for('static', filename='assets/logo.svg') }}" alt="">
         <span>IoT<em>Shield</em></span>
       </a>
@@ -46,16 +46,18 @@
       </button>
 
       <nav class="nav-links" id="navLinks">
-        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if page == 'dashboard' }}"><svg class="icon"><use href="#i-grid"/></svg>Dashboard</a>
-        <a href="{{ url_for('devices_page') }}" class="{{ 'active' if page == 'devices' }}"><svg class="icon"><use href="#i-cpu"/></svg>Devices</a>
-        <a href="{{ url_for('authenticate_page') }}" class="{{ 'active' if page == 'authenticate' }}"><svg class="icon"><use href="#i-key"/></svg>Authenticate</a>
-        <a href="{{ url_for('firmware_page') }}" class="{{ 'active' if page == 'firmware' }}"><svg class="icon"><use href="#i-package"/></svg>Firmware</a>
-        <a href="{{ url_for('custody_page') }}" class="{{ 'active' if page == 'custody' }}"><svg class="icon"><use href="#i-lock"/></svg>Key Custody</a>
-        <a href="{{ url_for('logs_page') }}" class="{{ 'active' if page == 'logs' }}"><svg class="icon"><use href="#i-list"/></svg>Security Logs</a>
-        <a href="{{ url_for('about_page') }}" class="{{ 'active' if page == 'about' }}"><svg class="icon"><use href="#i-info"/></svg>About</a>
+        <a href="{{ url_for('home') }}" class="{{ 'active' if page == 'home' }}"><svg class="icon"><use href="#i-home"/></svg><span class="label">Home</span></a>
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if page == 'dashboard' }}"><svg class="icon"><use href="#i-grid"/></svg><span class="label">Dashboard</span></a>
+        <a href="{{ url_for('devices_page') }}" class="{{ 'active' if page == 'devices' }}"><svg class="icon"><use href="#i-cpu"/></svg><span class="label">Devices</span></a>
+        <a href="{{ url_for('authenticate_page') }}" class="{{ 'active' if page == 'authenticate' }}"><svg class="icon"><use href="#i-key"/></svg><span class="label">Authenticate</span></a>
+        <a href="{{ url_for('firmware_page') }}" class="{{ 'active' if page == 'firmware' }}"><svg class="icon"><use href="#i-package"/></svg><span class="label">Firmware</span></a>
+        <a href="{{ url_for('custody_page') }}" class="{{ 'active' if page == 'custody' }}"><svg class="icon"><use href="#i-lock"/></svg><span class="label">Key Custody</span></a>
+        <a href="{{ url_for('logs_page') }}" class="{{ 'active' if page == 'logs' }}"><svg class="icon"><use href="#i-list"/></svg><span class="label">Security Logs</span></a>
+        <a href="{{ url_for('about_page') }}" class="{{ 'active' if page == 'about' }}"><svg class="icon"><use href="#i-info"/></svg><span class="label">About</span></a>
       </nav>
 
       <div class="nav-right">
+      <a class="btn btn-primary nav-cta" href="{{ url_for('authenticate_page') }}">Authenticate device</a>
       <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Switch to light mode">
         <svg class="icon i-sun-icon"><use href="#i-sun"/></svg>
         <svg class="icon i-moon-icon"><use href="#i-moon"/></svg>
