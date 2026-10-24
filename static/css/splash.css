@@ -2,7 +2,7 @@
    draw      : the keyhole traces itself while hex digits drift in the dark
    handshake : challenge / hmac / verdict are typed under it (a real HMAC, computed in the browser)
    .unlocked : the slot in the ring fills with a click, the name rises in
-   .entering : the camera flies through the keyhole, its black centre becomes the app      */
+   .entering : the screen fades into the app (no zoom)                                      */
 :root { --y: #f3c63f; --y-soft: #ffe9a6; --bg: #060503; }
 * { box-sizing: border-box; margin: 0; }
 
@@ -30,7 +30,7 @@ body {
 /* ---------- the keyhole ---------- */
 .door { position: relative; height: clamp(190px, 34vh, 290px); aspect-ratio: 435 / 767; }
 .keyhole { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; color: var(--y);
-  transform-origin: 50.1% 24.4%;                       /* centre of the ring: we fly into this point */
+  transform-origin: 50.1% 24.4%;                       /* centre of the ring */
   filter: drop-shadow(0 0 12px rgba(243, 198, 63, .35)); }
 
 .kh-stroke { fill: none; stroke: currentColor; stroke-width: 62; stroke-linejoin: miter; stroke-miterlimit: 4;
@@ -61,10 +61,8 @@ body {
 @keyframes pulse { from { opacity: .9; transform: translate(-50%, -50%) scale(1); } to { opacity: 0; transform: translate(-50%, -50%) scale(2.6); } }
 .unlocked .keyhole { filter: drop-shadow(0 0 18px rgba(255, 220, 110, .6)); transition: filter .4s; }
 
-/* fly through the keyhole: the black inside the ring grows until it fills the screen */
-.entering .keyhole { transform: scale(46); opacity: 0; filter: none;
-  transition: transform 1s cubic-bezier(.7, 0, .95, .5), opacity .35s .62s ease-in; }
-.entering .halo { transform: translate(-50%, -50%) scale(9); opacity: 0; transition: transform 1s ease-in, opacity .7s ease-in; }
+/* leaving: everything fades out together (no zoom) */
+.entering .halo { opacity: 0; transition: opacity .35s ease-in; }
 .entering .readout, .entering .skip { opacity: 0; transition: opacity .3s; }
 
 /* ---------- the handshake readout, then the name ---------- */
@@ -106,5 +104,4 @@ body {
   .kh-stroke { animation: none; stroke-dashoffset: 0; }
   .halo, .pulse, .unlocked .kh-latch { animation: none; }
   .halo { opacity: 1; }
-  .entering .keyhole { transform: none; transition: opacity .3s; }
 }

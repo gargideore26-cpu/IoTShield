@@ -1,5 +1,5 @@
 // IoTShield opening screen: the keyhole draws itself while hex digits drift behind it, a short
-// HMAC handshake is typed underneath, the lock clicks shut, then we fly through the keyhole.
+// HMAC handshake is typed underneath, the lock clicks shut, then the screen fades into the app.
 (() => {
   'use strict';
 
@@ -13,8 +13,8 @@
 
   const DRAW_MS = 1500;          // the keyhole traces itself first
   const LINE_GAP_MS = 380;       // pause between handshake lines
-  const HOLD_MS = 1500;          // time to read the name before flying in
-  const FLY_MS = 1000;           // zoom through the keyhole (matches splash.css)
+  const HOLD_MS = 1500;          // time to read the name before moving on
+  const FLY_MS = 300;            // lead-in to the fade-out
   const FADE_MS = 350;
 
   /* ---------- hex digits drifting in the dark, brighter near the keyhole ---------- */
@@ -94,7 +94,7 @@
   /* ---------- the sequence ---------- */
   let entering = false;
 
-  function enter() {                                    // fly through the keyhole, then on to the app
+  function enter() {                                    // fade out, then on to the app
     if (entering) return;
     entering = true;
     splash.classList.add('entering');
